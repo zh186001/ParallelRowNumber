@@ -1,0 +1,29 @@
+.logon 192.168.152.128/dbc,dbc
+.width 100;
+--.maxerror 1;
+
+REPLACE FUNCTION SYSLIB.RowsPerAMP()
+RETURNS TABLE VARYING USING FUNCTION RowsPerAMP_contract
+LANGUAGE C
+NO SQL
+PARAMETER STYLE SQLTABLE
+EXTERNAL NAME 'CS!RowsPerAMP!C:\Users\ZH186001\OneDrive - Teradata\Documents\GitHub\ParallelRowNumber\RowsPerAMP.c!F!RowsPerAMP';
+
+EXPLAIN SELECT * FROM RowsPerAMP(ON (SELECT * FROM dbc.accessrights)) AS RPA;
+
+SELECT * FROM RowsPerAMP(ON (SELECT * FROM dbc.accessrights)) AS RPA;
+
+
+
+
+
+
+REPLACE FUNCTION SYSLIB.ParallelRowNumber ()
+RETURNS TABLE VARYING USING FUNCTION ParallelRowNumber_contract
+LANGUAGE C
+NO SQL
+PARAMETER STYLE SQLTABLE
+EXTERNAL NAME 'CS!RowNumber!C:\Users\ZH186001\OneDrive - Teradata\Documents\GitHub\ParallelRowNumber\RowNumber.c!F!ParallelRowNumber';
+
+WITH my_query AS (SELECT * FROM dbc.accessrights)
+SELECT * FROM ParallelRowNumber(ON my_query ON (SELECT * FROM RowsPerAmp(ON my_query) AS RPA) DIMENSION) AS PRN;

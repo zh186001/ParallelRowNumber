@@ -1,0 +1,2 @@
+bteq < ParallelRowNumber.bteq
+pause
